@@ -1,0 +1,330 @@
+<title>Capital Project Overrun Risk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a cost-report working sheet. Inputs on the left, the risk figure and its context on the right, the live forecast register below. */
+:root {
+  --paper: #f6f7f5; --sheet: #ffffff; --ink: #18211f; --ink-2: #4b5653; --muted: #7d8784;
+  --rule: #dfe3e0; --rule-2: #c9cfcb; --accent: #1e5b52; --accent-soft: #e3eeeb;
+  --low: #2f7d4f; --mid: #b7791f; --high: #c2412d; --low-bg: #e6f2ea; --mid-bg: #f8eedb; --high-bg: #f9e6e2;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #121715; --sheet: #1a201e; --ink: #e8ecea; --ink-2: #b4bdb9; --muted: #85908c;
+  --rule: #2b3330; --rule-2: #3a4440; --accent: #6cc0b0; --accent-soft: #1f3330;
+  --low: #5fbf85; --mid: #e0a64a; --high: #ef7a64; --low-bg: #1c3125; --mid-bg: #352a17; --high-bg: #3a201b;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #121715; --sheet: #1a201e; --ink: #e8ecea; --ink-2: #b4bdb9; --muted: #85908c;
+  --rule: #2b3330; --rule-2: #3a4440; --accent: #6cc0b0; --accent-soft: #1f3330;
+  --low: #5fbf85; --mid: #e0a64a; --high: #ef7a64; --low-bg: #1c3125; --mid-bg: #352a17; --high-bg: #3a201b;
+  color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 48px }
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 24px }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -0.01em }
+h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; line-height: 1.1 }
+h2 { font-size: 18px; font-weight: 700 }
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent) }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 8px 0 0 }
+header { display: grid; gap: 6px }
+.num { font-variant-numeric: tabular-nums; font-family: var(--f-mono) }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: start }
+@media (max-width: 860px) { .main { grid-template-columns: 1fr } }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; min-width: 0 }
+
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px }
+.chip { font: 500 12.5px var(--f-body); color: var(--ink); background: var(--paper); border: 1px solid var(--rule-2);
+  border-radius: 999px; padding: 4px 11px; cursor: pointer; text-align: left }
+.chip:hover { border-color: var(--accent) }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink) }
+.chip:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px }
+@media (max-width: 480px) { form { grid-template-columns: 1fr } }
+.field { display: grid; gap: 4px; min-width: 0 }
+.field.wide { grid-column: 1 / -1 }
+label { font-size: 12.5px; font-weight: 600; color: var(--ink-2) }
+.hint { font-size: 11.5px; color: var(--muted) }
+input, select { font: 14px var(--f-body); color: var(--ink); background: var(--paper); border: 1px solid var(--rule-2);
+  border-radius: 4px; padding: 7px 9px; width: 100%; min-width: 0 }
+input[type=number] { font-family: var(--f-mono) }
+.group-label { grid-column: 1 / -1; font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); border-top: 1px solid var(--rule); padding-top: 10px; margin-top: 2px }
+
+.result { display: grid; gap: 18px }
+.figure { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 22px }
+.big { font-family: var(--f-display); font-weight: 800; font-size: clamp(56px, 9vw, 84px); line-height: .9; letter-spacing: -0.03em }
+.tier { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; border-radius: 999px; padding: 3px 10px }
+.tier::before { content: ""; width: 8px; height: 8px; border-radius: 50% ; background: currentColor }
+.tier.low { color: var(--low); background: var(--low-bg) } .tier.mid { color: var(--mid); background: var(--mid-bg) } .tier.high { color: var(--high); background: var(--high-bg) }
+.question { color: var(--ink-2); font-size: 13.5px; max-width: 46ch }
+
+.compare { display: grid; gap: 8px }
+.cmp-row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 3.4rem; align-items: center; gap: 10px; font-size: 13px }
+.cmp-row .lab { color: var(--ink-2); overflow-wrap: anywhere }
+.track { height: 10px; background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; position: relative; overflow: hidden }
+.fill { position: absolute; inset: 0 auto 0 0; border-radius: 0 3px 3px 0; background: var(--muted) }
+.fill.you { background: var(--accent) }
+.cmp-row .v { text-align: right }
+
+.chart-wrap { min-width: 0 }
+.chart-wrap svg { width: 100%; height: auto; display: block; overflow: visible }
+.chart-note { font-size: 12px; color: var(--muted); margin-top: 4px }
+
+.register { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px }
+th { text-align: left; font: 500 11px var(--f-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--rule-2); padding: 8px 8px }
+td { border-bottom: 1px solid var(--rule); padding: 8px 8px; vertical-align: middle }
+td.r, th.r { text-align: right }
+.riskcell { display: flex; align-items: center; gap: 8px; justify-content: flex-end }
+.minibar { width: 64px; height: 6px; background: var(--paper); border: 1px solid var(--rule); border-radius: 2px; position: relative }
+.minibar span { position: absolute; inset: 0 auto 0 0; background: var(--high); border-radius: 2px }
+.phase { font-size: 12px; color: var(--ink-2) }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; border-top: 1px solid var(--rule) }
+.fact { padding: 12px 14px 12px 0; display: grid; gap: 2px }
+.fact b { font: 600 20px var(--f-mono); font-variant-numeric: tabular-nums }
+.fact span { font-size: 12.5px; color: var(--ink-2) }
+footer { font-size: 12.5px; color: var(--muted); max-width: 90ch; display: grid; gap: 6px }
+footer a { color: var(--accent) }
+@media (prefers-reduced-motion: no-preference) { .fill, .minibar span { transition: width .25s ease } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">NYC capital program · 12-month budget outlook</div>
+    <h1>Capital Project Overrun Risk</h1>
+    <p class="lede">Estimates the chance that a New York City capital project's budget grows by more than 10% over the next 12 months, from the project's state today. Built from three years of the city's Capital Projects Dashboard; the model runs in this page.</p>
+  </header>
+
+  <div class="main">
+    <section class="sheet" aria-labelledby="in-h">
+      <h2 id="in-h">Project as it stands today</h2>
+      <div class="hint" style="margin-top:4px">Start from a real project in the May 2026 snapshot, or enter your own.</div>
+      <div class="examples" id="examples"></div>
+      <form id="f" autocomplete="off">
+        <div class="field"><label for="agency">Managing agency</label><select id="agency"></select></div>
+        <div class="field"><label for="phase">Current phase</label><select id="phase"></select></div>
+        <div class="field wide"><label for="category">Ten-year plan category</label><select id="category"></select></div>
+        <div class="field"><label for="borough">Borough</label><select id="borough"></select></div>
+        <div class="field"><label for="budget">Current budget ($M)</label><input id="budget" type="number" step="0.1" min="0.25"></div>
+
+        <div class="group-label">Progress and schedule</div>
+        <div class="field"><label for="spend">Share of budget spent (%)</label><input id="spend" type="number" min="0" max="100" step="1"></div>
+        <div class="field"><label for="tocomp">Months to forecast completion</label><input id="tocomp" type="number" step="1"><span class="hint">Negative if overdue. Blank if unknown.</span></div>
+        <div class="field"><label for="inphase">Months in current phase</label><input id="inphase" type="number" min="0" step="1"><span class="hint">Blank if unknown.</span></div>
+
+        <div class="group-label">Budget track record</div>
+        <div class="field"><label for="age">Months since first budget record</label><input id="age" type="number" min="0" step="1"></div>
+        <div class="field"><label for="growth">Growth since first record (%)</label><input id="growth" type="number" step="1"></div>
+        <div class="field"><label for="chg4">Budget change, last 4 months (%)</label><input id="chg4" type="number" step="0.5"></div>
+        <div class="field"><label for="revs">Past budget revisions</label><input id="revs" type="number" min="0" step="1"></div>
+      </form>
+    </section>
+
+    <section class="sheet result" aria-labelledby="out-h" aria-live="polite">
+      <h2 id="out-h" class="eyebrow" style="font-family:var(--f-mono);font-size:11.5px;font-weight:500">Chance of more than 10% budget growth in 12 months</h2>
+      <div class="figure">
+        <div class="big num" id="risk">–</div>
+        <div style="display:grid;gap:6px">
+          <span class="tier" id="tier">–</span>
+          <span class="question" id="sentence"></span>
+        </div>
+      </div>
+      <div class="compare" id="compare"></div>
+      <div class="chart-wrap">
+        <h3 style="font-size:14px;font-weight:700">How risk changes as the budget is spent</h3>
+        <div id="chart"></div>
+        <div class="chart-note">Every other input held at its current value. The dot marks this project.</div>
+      </div>
+    </section>
+  </div>
+
+  <section class="sheet" aria-labelledby="fc-h">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+      <h2 id="fc-h">Highest-risk active projects, May 2026 snapshot</h2>
+      <span class="hint" id="fc-sum"></span>
+    </div>
+    <p class="hint" style="margin:4px 0 10px">A forward forecast: these outcomes are not known yet and can be checked against the May 2027 snapshot.</p>
+    <div class="register"><table>
+      <thead><tr><th>Project</th><th>Agency</th><th>Phase</th><th class="r">Budget</th><th class="r">Spent</th><th class="r">Risk</th></tr></thead>
+      <tbody id="fc"></tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="mc-h" style="display:grid;gap:10px">
+    <h2 id="mc-h">How well it works</h2>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <footer>
+    <span>Tested by rolling-origin backtest: for each test snapshot (Sep 2024, Jan 2025, May 2025) the model was trained only on outcomes already known at that date. Risk shown here is calibrated to observed rates from that backtest; the raw model overstates risk for its highest-scoring projects.</span>
+    <span>Data: NYC Open Data, Capital Projects Dashboard (Citywide Budget and Schedule; Budget Spend History and Variance). Inputs not on this form are treated as unknown, as the model allows. A screening aid for ranking projects, not a cost estimate.</span>
+  </footer>
+</div>
+
+<script>
+const M = /*__MODEL__*/null;
+const MET = /*__METRICS__*/null;
+
+function walk(node, x) {
+  while (node.v === undefined) {
+    const val = x[node.f];
+    let left;
+    if (node.c) left = val !== null && val >= 0 && node.c.includes(val);
+    else if (val === null || Number.isNaN(val)) left = node.m === "None" ? 0 <= node.t : node.dl;
+    else if (node.m === "Zero" && val === 0) left = node.dl;
+    else left = val <= node.t;
+    node = left ? node.l : node.r;
+  }
+  return node.v;
+}
+function raw(x) { let s = 0; for (const t of M.trees) s += walk(t, x); return 1 / (1 + Math.exp(-s)); }
+function calibrate(p) {
+  const { x, y } = M.calibration;
+  if (p <= x[0]) return y[0];
+  if (p >= x[x.length - 1]) return y[y.length - 1];
+  let i = 1; while (x[i] < p) i++;
+  return y[i - 1] + (p - x[i - 1]) / (x[i] - x[i - 1]) * (y[i] - y[i - 1]);
+}
+
+const $ = id => document.getElementById(id);
+const pct = (v, d = 0) => (v * 100).toFixed(d) + "%";
+const money = v => v >= 1e9 ? "$" + (v / 1e9).toFixed(2) + "B" : "$" + (v / 1e6).toFixed(v < 1e7 ? 2 : 1) + "M";
+const title = s => s.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase());
+
+function fillSelect(id, levels, fmt = v => v) {
+  $(id).innerHTML = levels.map(v => `<option value="${v.replace(/"/g, "&quot;")}">${fmt(v)}</option>`).join("");
+}
+fillSelect("agency", M.form_levels.agency);
+fillSelect("phase", M.form_levels.phase);
+fillSelect("category", M.form_levels.category, v => title(v));
+fillSelect("borough", M.form_levels.borough);
+
+const numOrNull = id => { const v = $(id).value.trim(); return v === "" ? null : Number(v); };
+
+function vector(overrides = {}) {
+  const v = {
+    agency: $("agency").value, phase: $("phase").value, category: $("category").value, borough: $("borough").value,
+    log_budget: numOrNull("budget") === null ? null : Math.log10(Math.max(numOrNull("budget"), 0.25) * 1e6),
+    spend_pct: numOrNull("spend") === null ? null : numOrNull("spend") / 100,
+    months_to_forecast_completion: numOrNull("tocomp"), months_in_phase: numOrNull("inphase"),
+    months_since_first_record: numOrNull("age"),
+    growth_since_first_record: numOrNull("growth") === null ? null : Math.log1p(Math.max(numOrNull("growth"), -95) / 100),
+    budget_change_4m: numOrNull("chg4") === null ? null : Math.log1p(Math.max(numOrNull("chg4"), -95) / 100),
+    n_hist_budget_changes: numOrNull("revs"),
+    n_subprojects: 1, has_schedule: 1, ...overrides,
+  };
+  v.budget_line_prefix = M.agency_default_prefix[v.agency] ?? null;
+  return M.features.map(f => {
+    if (M.categorical.includes(f)) { const i = M.categories[f].indexOf(v[f]); return i < 0 ? null : i; }
+    if (f.startsWith("kw_")) return 0;
+    return v[f] ?? null;
+  });
+}
+
+function tierOf(r) { return r >= 0.25 ? ["high", "High"] : r >= 0.10 ? ["mid", "Elevated"] : ["low", "Low"]; }
+
+function update() {
+  const r = calibrate(raw(vector()));
+  $("risk").textContent = pct(r);
+  const [cls, name] = tierOf(r);
+  const t = $("tier"); t.className = "tier " + cls; t.textContent = name + " risk";
+  const ref = M.reference_rates[$("agency").value + "|" + $("phase").value];
+  const times = r / M.overall_rate;
+  $("sentence").textContent = `About ${times >= 1 ? times.toFixed(1) + "×" : (1 / times).toFixed(1) + "× lower than"} the average active project${times >= 1 ? "'s rate" : ""}.`;
+  const rows = [["This project", r, true], ["All active projects", M.overall_rate, false]];
+  if (ref !== undefined) rows.splice(1, 0, [`${$("agency").value} projects in ${$("phase").value}`, ref, false]);
+  const max = Math.max(0.5, ...rows.map(x => x[1]));
+  $("compare").innerHTML = rows.map(([l, v, you]) =>
+    `<div class="cmp-row"><span class="lab">${l}</span><span class="track"><span class="fill ${you ? "you" : ""}" style="width:${v / max * 100}%"></span></span><span class="v num">${pct(v)}</span></div>`).join("");
+  drawCurve();
+}
+
+function drawCurve() {
+  const W = 520, H = 190, L = 40, R = 12, T = 12, B = 30;
+  const xs = Array.from({ length: 41 }, (_, i) => i / 40);
+  const ys = xs.map(s => calibrate(raw(vector({ spend_pct: s }))));
+  const cur = numOrNull("spend") === null ? null : Math.min(1, numOrNull("spend") / 100);
+  const yMax = Math.max(0.3, Math.ceil(Math.max(...ys) * 10) / 10);
+  const X = s => L + s * (W - L - R), Y = v => T + (1 - v / yMax) * (H - T - B);
+  const ticks = []; for (let v = 0; v <= yMax + 1e-9; v += 0.1) ticks.push(v);
+  const path = ys.map((v, i) => (i ? "L" : "M") + X(xs[i]).toFixed(1) + " " + Y(v).toFixed(1)).join(" ");
+  const area = path + ` L ${X(1)} ${Y(0)} L ${X(0)} ${Y(0)} Z`;
+  let dot = "";
+  if (cur !== null) {
+    const cy = calibrate(raw(vector({ spend_pct: cur })));
+    dot = `<circle cx="${X(cur)}" cy="${Y(cy)}" r="5.5" fill="var(--accent)" stroke="var(--sheet)" stroke-width="2"/>`;
+  }
+  $("chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Risk against share of budget spent">
+    ${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)" stroke-width="1"/>
+      <text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${Math.round(v * 100)}%</text>`).join("")}
+    ${[0, .25, .5, .75, 1].map(s => `<text x="${X(s)}" y="${H - 10}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${s * 100}%</text>`).join("")}
+    <line x1="${L}" x2="${W - R}" y1="${Y(M.overall_rate)}" y2="${Y(M.overall_rate)}" stroke="var(--ink-2)" stroke-dasharray="3 3" stroke-width="1"/>
+    <text x="${W - R}" y="${Y(M.overall_rate) - 5}" text-anchor="end" font-size="11" fill="var(--ink-2)">all-project average</text>
+    <path d="${area}" fill="var(--accent-soft)"/>
+    <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    ${dot}
+    <line id="hx" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--ink-2)" stroke-width="1" visibility="hidden"/>
+    <text id="ht" x="0" y="${T + 10}" font-size="11.5" fill="var(--ink)" font-family="IBM Plex Mono, monospace" visibility="hidden"></text>
+    <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="hit"/>
+  </svg>`;
+  const svg = $("chart").querySelector("svg"), hit = svg.querySelector("#hit");
+  const hx = svg.querySelector("#hx"), ht = svg.querySelector("#ht");
+  hit.addEventListener("pointermove", e => {
+    const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const i = Math.max(0, Math.min(40, Math.round((p.x - L) / (W - L - R) * 40)));
+    hx.setAttribute("x1", X(xs[i])); hx.setAttribute("x2", X(xs[i])); hx.setAttribute("visibility", "visible");
+    ht.textContent = `${Math.round(xs[i] * 100)}% spent → ${pct(ys[i])}`;
+    const tx = X(xs[i]) + (xs[i] > 0.6 ? -8 : 8);
+    ht.setAttribute("x", tx); ht.setAttribute("text-anchor", xs[i] > 0.6 ? "end" : "start"); ht.setAttribute("visibility", "visible");
+  });
+  hit.addEventListener("pointerleave", () => { hx.setAttribute("visibility", "hidden"); ht.setAttribute("visibility", "hidden"); });
+}
+
+function loadExample(e, btn) {
+  const set = (id, v) => { $(id).value = v === null || v === undefined ? "" : v; };
+  set("agency", e.agency); set("phase", e.phase); set("borough", e.borough);
+  if (M.form_levels.category.includes(e.category)) set("category", e.category);
+  set("budget", e.log_budget == null ? "" : (10 ** e.log_budget / 1e6).toFixed(2));
+  set("spend", e.spend_pct == null ? "" : Math.round(e.spend_pct * 100));
+  set("tocomp", e.months_to_forecast_completion == null ? "" : Math.round(e.months_to_forecast_completion));
+  set("inphase", e.months_in_phase == null ? "" : Math.round(e.months_in_phase));
+  set("age", e.months_since_first_record == null ? "" : Math.round(e.months_since_first_record));
+  set("growth", e.growth_since_first_record == null ? "" : Math.round(Math.expm1(e.growth_since_first_record) * 100));
+  set("chg4", e.budget_change_4m == null ? "" : (Math.expm1(e.budget_change_4m) * 100).toFixed(1));
+  set("revs", e.n_hist_budget_changes);
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === btn ? "true" : "false"));
+  update();
+}
+
+$("examples").innerHTML = M.examples.map((e, i) => `<button type="button" class="chip" data-i="${i}" aria-pressed="false">${e.name}</button>`).join("");
+document.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => loadExample(M.examples[+b.dataset.i], b)));
+$("f").addEventListener("input", () => { document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false")); update(); });
+$("f").addEventListener("submit", e => e.preventDefault());
+
+const F = M.forecast;
+$("fc-sum").textContent = `${F.n_projects.toLocaleString()} active projects scored · about ${Math.round(F.expected_overruns)} expected to exceed +10%`;
+$("fc").innerHTML = F.top.map(p => `<tr><td>${p.name}</td><td>${p.agency}</td><td class="phase">${p.phase}</td>
+  <td class="r num">${money(p.budget)}</td><td class="r num">${pct(p.spend_pct)}</td>
+  <td class="r"><span class="riskcell"><span class="num">${pct(p.risk)}</span><span class="minibar"><span style="width:${Math.min(100, p.risk / 0.6 * 100)}%"></span></span></span></td></tr>`).join("");
+
+const lg = MET.pooled.lightgbm;
+$("facts").innerHTML = [
+  [lg.roc_auc.toFixed(3), `ROC-AUC on unseen later snapshots (95% CI ${lg.roc_auc_ci[0].toFixed(2)}–${lg.roc_auc_ci[1].toFixed(2)})`],
+  [lg.lift_top10.toFixed(1) + "×", `Overrun rate in the top-scored 10% vs. all projects (${pct(lg.precision_top10)} vs ${pct(lg.base_rate)})`],
+  [MET.deciles.top + " / " + MET.deciles.bottom, "Observed overrun rate, highest vs. lowest risk decile"],
+  [M.trained_on.rows.toLocaleString(), `Project snapshots used for training, from ${M.trained_on.projects.toLocaleString()} projects`],
+].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("");
+
+loadExample(M.examples[0], document.querySelector(".chip"));
+</script>
