@@ -19,6 +19,11 @@ small = {
 }
 html = (DEMO / "template.html").read_text()
 html = html.replace("/*__MODEL__*/null", model).replace("/*__METRICS__*/null", json.dumps(small))
+# The template is a page body; wrap it so it opens correctly as a standalone file or on GitHub Pages.
+html = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+        + html.replace("<div class=\"wrap\">", "</head>\n<body>\n<div class=\"wrap\">", 1)
+        + "\n</body>\n</html>\n")
 out = DEMO / "overrun-risk.html"
 out.write_text(html)
 print(f"wrote {out.relative_to(ROOT)} ({out.stat().st_size / 1e3:.0f} KB)")
