@@ -6,9 +6,9 @@ Which live public construction projects are likely to need more money soon?
 
 This project uses three years of New York City's public capital project data to estimate, for every active project, the probability that its budget grows by more than 10% over the next 12 months. It is built the way a cost manager would actually use it: a ranked watch-list, scored from each project's state today, and tested only on dates the model has never seen.
 
-**[Try the live demo](https://lordlughas.github.io/nyc-capital-overrun/demo/overrun-risk.html)** (the model runs entirely in your browser)
+**[Try the live demo](https://lordlughas.github.io/Nyc-capital-overrun/demo/overrun-risk.html)** (the model runs entirely in your browser)
 
-[![Screenshot of the demo](docs/demo-screenshot.png)](https://lordlughas.github.io/nyc-capital-overrun/demo/overrun-risk.html)
+[![Screenshot of the demo](docs/demo-screenshot.png)](https://lordlughas.github.io/Nyc-capital-overrun/demo/overrun-risk.html)
 
 ---
 
@@ -327,8 +327,8 @@ NYC Open Data refused downloads from Nigeria with a 403 error. The workaround wa
 Requires Python 3.11 or later.
 
 ```bash
-git clone https://github.com/lordlughas/nyc-capital-overrun.git
-cd nyc-capital-overrun
+git clone https://github.com/lordlughas/Nyc-capital-overrun.git
+cd Nyc-capital-overrun
 pip install -r requirements.txt
 
 python src/download.py          # ~20 MB from NYC Open Data
